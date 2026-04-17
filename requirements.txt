@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+openai
+sqlalchemy
+psycopg2-binary
+faiss-cpu
+pandas
+requests
+python-dotenv
+python-docx
+pypdf
