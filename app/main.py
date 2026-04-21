@@ -21,9 +21,9 @@ from botbuilder.core import (
     BotFrameworkAdapter,
     BotFrameworkAdapterSettings,
     TurnContext,
-    ActivityTypes,
 )
-from botbuilder.schema import Activity, ActivityTypes, ChannelAccount
+
+from botbuilder.schema import Activity, ActivityTypes
 
 # Your existing imports
 from .db import get_db, engine
