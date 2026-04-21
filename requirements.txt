@@ -9,5 +9,10 @@ requests
 python-dotenv
 python-docx
 pypdf
+
 botbuilder-core==4.15.0
 botbuilder-schema==4.15.0
+botbuilder-integration-aiohttp==4.15.0
+
+aiohttp
+msrest
