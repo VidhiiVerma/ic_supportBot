@@ -1,35 +1,24 @@
 import numpy as np
-import requests
+import os
+from openai import OpenAI
 
-OLLAMA_URL = "http://localhost:11434/api/embeddings"
-EMBED_MODEL = "nomic-embed-text"
-
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def embed_texts(texts: list[str]) -> np.ndarray:
     if not texts:
         return np.array([], dtype="float32")
 
-    embeddings = []
+    response = client.embeddings.create(
+        input=texts,
+        model="text-embedding-3-small"
+    )
 
-    for text in texts:
-        resp = requests.post(
-            OLLAMA_URL,
-            json={
-                "model": EMBED_MODEL,
-                "prompt": text
-            },
-            timeout=120,
-        )
+    embeddings = np.array(
+        [d.embedding for d in response.data],
+        dtype="float32"
+    )
 
-        resp.raise_for_status()
-        vector = resp.json()["embedding"]
-        embeddings.append(vector)
-
-    embeddings = np.array(embeddings, dtype="float32")
-
-    # Normalize for cosine similarity
+    # normalize
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
     norms[norms == 0] = 1
-    embeddings = embeddings / norms
-
-    return embeddings
+    return embeddings / norms
