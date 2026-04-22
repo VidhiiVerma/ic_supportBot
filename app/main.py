@@ -251,49 +251,38 @@ def root():
 # -------- TEAMS BOT MESSAGES ENDPOINT (THE MAIN ONE) --------
 @app.post("/api/messages")
 async def messages(req: Request):
-    """
-    MAIN ENDPOINT - Teams calls this when user sends message
-    
-    Flow:
-    1. Teams sends Activity (message) to this endpoint
-    2. We authenticate with Microsoft
-    3. Convert to TurnContext
-    4. Call our handler (handle_teams_message)
-    5. Send response back via TurnContext
-    """
-    
     if not ADAPTER:
         logger.error("Bot Framework not initialized")
         return Response(status_code=500)
-    
+
     try:
-        # Get the raw body as JSON
+        # Parse incoming request
         body = await req.json()
         logger.info(f"Received activity: {body.get('type')}")
-        
-        # Get authorization header
+
         auth_header = req.headers.get("Authorization", "")
-        
-        # Process the activity
+
+        # ✅ FIX: correct way to call process_activity
+        activity = Activity().deserialize(body)
+
         response = await ADAPTER.process_activity(
-            activity=Activity().deserialize(body),
-            auth_header=auth_header,
-            callback=handle_teams_message
+            activity,
+            auth_header,
+            handle_teams_message
         )
-        
+
         # Return response to Teams
         if response:
             return response
         else:
             return Response(status_code=201)
-    
+
     except Exception as e:
         logger.error(f"Error in /api/messages: {str(e)}", exc_info=True)
         return Response(
             status_code=500,
             content=json.dumps({"error": str(e)})
         )
-
 # -------- DIRECT /ASK ENDPOINT (for external integrations) --------
 @app.post("/ask", response_model=AskResponse)
 def ask(
