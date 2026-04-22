@@ -68,9 +68,10 @@ logger.info("RAG System initialized")
 # initalize BOT 
 try:
     SETTINGS = BotFrameworkAdapterSettings(
-        app_id=BOT_APP_ID,
-        app_password=BOT_APP_PASSWORD
-    )
+    app_id=BOT_APP_ID,
+    app_password=BOT_APP_PASSWORD,
+    channel_auth_tenant=os.getenv("MICROSOFT_APP_TENANT_ID")
+)
     ADAPTER = BotFrameworkAdapter(SETTINGS)
     logger.info("Bot Framework Adapter initialized successfully")
 except Exception as e:
