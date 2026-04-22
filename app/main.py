@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 BOT_APP_ID = os.getenv("MICROSOFT_APP_ID", "YOUR_BOT_APP_ID")
 BOT_APP_PASSWORD = os.getenv("MICROSOFT_APP_PASSWORD", "YOUR_BOT_APP_PASSWORD")
-ALLOWED_TEAMS_IDS = os.getenv("ALLOWED_TEAMS_IDS", "").split(",")  # Optional: restrict to specific teams
+logger.info(f"APP_ID LOADED: {BOT_APP_ID}")
 
 # FASTAPI init
 app = FastAPI(
