@@ -138,7 +138,7 @@ async def handle_teams_message(turn_context: TurnContext) -> None:
         # Option C: Extract from Teams conversation (simplified)
         if not rep_id:
             # Fallback: use first 20 chars of user ID as temp rep_id
-            rep_id = user_id[:20]
+            rep_id = "1150"
             logger.warning(f"No rep_id found, using Teams user ID: {rep_id}")
         
         # ===== STEP 3: Get conversation ID from Teams =====
