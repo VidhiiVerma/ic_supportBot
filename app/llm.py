@@ -16,10 +16,16 @@ client = AzureOpenAI(
 
 def generate_response(prompt: str):
     try:
+        prompt_lower = prompt.lower().strip()
+
+        # ✅ handle only thank you
+        if "thank" in prompt_lower:
+            return "You're welcome! See you 😊"
+
         response = client.chat.completions.create(
             model="gpt-5-chat",  
             messages=[
-                {"role": "system", "content": "You are an IC compensation assistant."},
+                {"role": "system", "content": "You are an Incentive compensation assistant."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0,

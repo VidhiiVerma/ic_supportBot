@@ -89,12 +89,12 @@ def retrieve_policy_context(question, rag):
     if not rag:
         return None
 
-    result = rag.ask(question)          # ✅ now returns a dict
+    result = rag.ask(question)         
 
-    if not isinstance(result, dict):    # ✅ guard against unexpected return
+    if not isinstance(result, dict):   
         return None
 
-    context = result.get("context")     # ✅ safe .get() on a dict
+    context = result.get("context")    
 
     if not context:
         return None
