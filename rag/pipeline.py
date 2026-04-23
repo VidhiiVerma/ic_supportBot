@@ -7,18 +7,14 @@ from .embedder import embed_texts
 from .indexer import VectorStore
 from .retriever import Retriever
 
-
-# ✅ Paths (Render safe)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 INDEX_DIR = os.path.join(DATA_DIR, "vector_store")
 
-
-# ✅ Azure OpenAI client
 client = AzureOpenAI(
     api_key=os.getenv("AZURE_OPENAI_KEY"),
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-    api_version = "2024-12-01-preview"
+    api_version="2024-12-01-preview"
 )
 
 
@@ -47,7 +43,6 @@ class RAGSystem:
 
             chunks = chunk_documents(docs)
             texts = [c["text"] for c in chunks]
-
             embeddings = embed_texts(texts)
 
             self.store = VectorStore(dimension=embeddings.shape[1])
@@ -59,22 +54,30 @@ class RAGSystem:
             top_k=self.top_k,
             min_score=self.min_score
         )
-
         print(f"[RAG] Ready with {self.store.total} vectors")
 
-    def ask(self, query: str):
+    def ask(self, query: str) -> dict:
         if not self.retriever:
-            return "System not initialized."
+            return {"answer": "System not initialized.", "context": None}
 
         results = self.retriever.retrieve(query)
 
         if not results or not isinstance(results, list):
             print("[RAG ERROR] Invalid results:", results)
-            return "Not found in document."
+            return {"answer": "Not found in document.", "context": None}
 
-        context = "\n\n".join([
-            r.get("text", "") for r in results if isinstance(r, dict)
-        ])
+        # Safely extract text whether results are dicts or plain strings
+        context_parts = []
+        for r in results:
+            if isinstance(r, dict):
+                context_parts.append(r.get("text", ""))
+            elif isinstance(r, str):
+                context_parts.append(r)
+
+        context = "\n\n".join(filter(None, context_parts))
+
+        if not context.strip():
+            return {"answer": "Not found in document.", "context": None}
 
         prompt = f"""
 Answer ONLY from the context below.
@@ -89,7 +92,7 @@ Question:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-5-chat",  
+                model="gpt-5-chat",
                 messages=[
                     {"role": "system", "content": "Answer strictly from context."},
                     {"role": "user", "content": prompt}
@@ -97,9 +100,9 @@ Question:
                 temperature=0.0,
                 max_tokens=400
             )
-
-            return response.choices[0].message.content.strip()
+            answer = response.choices[0].message.content.strip()
+            return {"answer": answer, "context": context}  # ✅ always a dict
 
         except Exception as e:
             print("[RAG ERROR]", e)
-            return "LLM failed."
+            return {"answer": "LLM failed.", "context": None}
