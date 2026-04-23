@@ -10,7 +10,7 @@ from .retriever import Retriever
 
 # ✅ Paths (Render safe)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "app", "data")
+DATA_DIR = os.path.join(BASE_DIR, "data")
 INDEX_DIR = os.path.join(DATA_DIR, "vector_store")
 
 
