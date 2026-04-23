@@ -68,10 +68,13 @@ class RAGSystem:
 
         results = self.retriever.retrieve(query)
 
-        if not results:
+        if not results or not isinstance(results, list):
+            print("[RAG ERROR] Invalid results:", results)
             return "Not found in document."
 
-        context = "\n\n".join([r["text"] for r in results])
+        context = "\n\n".join([
+            r.get("text", "") for r in results if isinstance(r, dict)
+        ])
 
         prompt = f"""
 Answer ONLY from the context below.
