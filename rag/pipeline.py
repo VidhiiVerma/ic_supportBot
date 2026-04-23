@@ -1,5 +1,5 @@
 import os
-from openai import OpenAI
+from openai import AzureOpenAI
 
 from .loader import load_directory
 from .chunker import chunk_documents
@@ -8,13 +8,18 @@ from .indexer import VectorStore
 from .retriever import Retriever
 
 
-# ✅ Robust path (works on Render)
+# ✅ Paths (Render safe)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "app", "data")
 INDEX_DIR = os.path.join(DATA_DIR, "vector_store")
 
-# ✅ OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# ✅ Azure OpenAI client
+client = AzureOpenAI(
+    api_key=os.getenv("AZURE_OPENAI_KEY"),
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_version = "2024-12-01-preview"
+)
 
 
 class RAGSystem:
@@ -25,12 +30,10 @@ class RAGSystem:
         self.retriever = None
 
     def build(self):
-        # ❌ If folder missing → fail fast
         if not os.path.exists(DATA_DIR):
             print(f"[RAG] Data folder missing: {DATA_DIR}")
             return
 
-        # ✅ Load existing index
         if VectorStore.exists(INDEX_DIR):
             print("[RAG] Loading existing index...")
             self.store = VectorStore.load(INDEX_DIR)
@@ -51,7 +54,6 @@ class RAGSystem:
             self.store.add(embeddings, chunks)
             self.store.save(INDEX_DIR)
 
-        # ✅ Retriever ready
         self.retriever = Retriever(
             self.store,
             top_k=self.top_k,
@@ -84,11 +86,13 @@ Question:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-5-chat",  
                 messages=[
                     {"role": "system", "content": "Answer strictly from context."},
                     {"role": "user", "content": prompt}
-                ]
+                ],
+                temperature=0.0,
+                max_tokens=400
             )
 
             return response.choices[0].message.content.strip()

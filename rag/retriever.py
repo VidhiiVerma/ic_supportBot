@@ -1,6 +1,3 @@
-"""
-retriever.py — Top-k retrieval with metadata from the vector store.
-"""
 
 from .embedder import embed_texts
 from .indexer import VectorStore

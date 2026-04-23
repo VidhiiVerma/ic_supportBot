@@ -173,7 +173,7 @@ Question:
     return intent
  
  
-# ---------------- MAIN CHAT LOGIC ----------------
+#  MAIN CHAT LOGIC 
  
 def get_rep_explanation(rep_id: str, question: str, db: Session, rag):
  

@@ -1,7 +1,7 @@
 NARRATION_PROMPT = """
 You are an intelligent IC assistant.
 
-Speak naturally and conversationally like ChatGPT.
+Speak naturally and conversationally.
 
 Always address the representative by name when answering.
 
